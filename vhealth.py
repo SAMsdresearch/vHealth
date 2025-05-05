@@ -6,32 +6,70 @@ from sklearn.linear_model import LinearRegression
 
 TARGET = 'HeartDisease'
 
-# Generate synthetic dataset for demo (hidden in UI)
-def generate_sample_data(n_samples=500, random_state=42):
+# Generate synthetic dataset for demo with stronger correlations and trend features
+def generate_sample_data(n_samples=1000, random_state=42):
     np.random.seed(random_state)
+    # Base random features
+    age = np.random.randint(30, 80, n_samples)
+    gender = np.random.choice(['Male', 'Female'], n_samples)
+    blood_pressure = np.random.randint(90, 180, n_samples)
+    cholesterol = np.random.randint(150, 300, n_samples)
+    heart_rate = np.random.randint(50, 110, n_samples)
+    quantum_feature = np.random.rand(n_samples)
+    
+    # Calculate rolling / local trend "risk factors"
+    # Simulate more complex interaction for target
+    risk_score = (
+        (age - 40) * 0.15 + 
+        (blood_pressure - 120) * 0.2 + 
+        (cholesterol - 200) * 0.25 + 
+        (heart_rate - 70) * 0.1 + 
+        (quantum_feature > 0.65).astype(float) * 15 +
+        (gender == 'Male').astype(float) * 5 +
+        np.random.normal(0, 5, n_samples)  # noise
+    )
+    # Use sigmoid to map risk score to probability
+    def sigmoid(x):
+        return 1 / (1 + np.exp(-0.08*(x-20)))
+    prob_heart_disease = sigmoid(risk_score)
+    target = (prob_heart_disease > 0.5).astype(int)
+
     data = pd.DataFrame({
-        'Age': np.random.randint(30, 80, n_samples),
-        'Gender': np.random.choice(['Male', 'Female'], n_samples),
-        'BloodPressure': np.random.randint(90, 180, n_samples),
-        'Cholesterol': np.random.randint(150, 300, n_samples),
-        'HeartRate': np.random.randint(50, 110, n_samples),
-        'QuantumPatternFeature': np.random.rand(n_samples),
+        'Age': age,
+        'Gender': gender,
+        'BloodPressure': blood_pressure,
+        'Cholesterol': cholesterol,
+        'HeartRate': heart_rate,
+        'QuantumPatternFeature': quantum_feature,
+        TARGET: target
     })
-    data[TARGET] = ((data['Age'] > 50) & 
-                    (data['BloodPressure'] > 130) | 
-                    (data['Cholesterol'] > 240) | 
-                    (data['QuantumPatternFeature'] > 0.7)).astype(int)
     return data
 
 def preprocess_data(df):
     df = df.copy()
+    # Map gender to 0/1
     df['Gender'] = df['Gender'].map({'Male': 1, 'Female': 0})
+
+    # Add engineered features - rolling averages and differences for demonstration
+    # Since this data is static, just add feature interactions
+    df['BP_Cholesterol'] = df['BloodPressure'] * df['Cholesterol'] / 1000
+    df['Age_Quantum'] = df['Age'] * df['QuantumPatternFeature']
+    df['HR_BP_diff'] = df['HeartRate'] - df['BloodPressure'] / 2
+
     X = df.drop(TARGET, axis=1)
     y = df[TARGET]
     return X, y
 
 def train_model(X, y):
-    model = RandomForestClassifier(random_state=42)
+    # Model with more trees and max depth tuning
+    model = RandomForestClassifier(
+        n_estimators=200,
+        max_depth=7,
+        min_samples_split=5,
+        min_samples_leaf=3,
+        random_state=42,
+        class_weight='balanced'
+    )
     model.fit(X, y)
     return model
 
@@ -157,6 +195,11 @@ def main():
         avg_predicted_features['Age'] = profile_data['Age']
         avg_predicted_features['Gender'] = 1 if profile_data['Gender'].lower() == 'male' else 0
 
+        # Add engineered feature columns for prediction input
+        avg_predicted_features['BP_Cholesterol'] = avg_predicted_features['BloodPressure'] * avg_predicted_features['Cholesterol'] / 1000
+        avg_predicted_features['Age_Quantum'] = avg_predicted_features['Age'] * avg_predicted_features['QuantumPatternFeature']
+        avg_predicted_features['HR_BP_diff'] = avg_predicted_features['HeartRate'] - avg_predicted_features['BloodPressure'] / 2
+
         st.markdown("**Average of Predicted Next 1 Month Values (Used for Prediction):**")
         st.write(pd.DataFrame([avg_predicted_features]))
 
@@ -167,7 +210,7 @@ def main():
         if prediction == 1:
             st.error(f"Prediction: HIGH risk of Heart Disease detected with probability {prediction_proba:.2f}!")
             st.warning(f"**Recommendation:** Please call your care provider immediately: {care_provider_number}")
-            # Replace button with clickable link for mobile call
+            # Clickable call link for mobile devices
             call_link_html = f'''
             <a href="tel:{care_provider_number}" style="
                 display: inline-block;
