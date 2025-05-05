@@ -102,14 +102,14 @@ def generate_variant_daily_profile_data(base_vals, trend_factor=0.04, noise_scal
     return data
 
 sample_profiles = {
-    "Sick Profile": {
-        'Age': 58,
+    "High Risk Profile": {
+        'Age': 65,
         'Gender': 'Male',
         'base_features': {
-            'BloodPressure': 145,
-            'Cholesterol': 270,
-            'HeartRate': 90,
-            'QuantumPatternFeature': 0.75,
+            'BloodPressure': 170,
+            'Cholesterol': 320,
+            'HeartRate': 115,
+            'QuantumPatternFeature': 0.95,
         }
     },
     "Healthy Profile": {
@@ -225,7 +225,6 @@ def main():
     st.write(f"Prediction probability for this class: {prediction_proba:.2f}")
 
     recommendation_text = recommendations[prediction]
-    # Recommendation colored by risk color
     st.markdown(f"<div style='border-left: 6px solid {risk_color}; background:#f9f9f9; padding: 10px; border-radius:5px;'>"
                 f"<strong>Recommendation:</strong> {recommendation_text}</div>", unsafe_allow_html=True)
 
@@ -251,3 +250,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
