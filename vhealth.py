@@ -145,7 +145,7 @@ def load_model():
 model, feature_order = load_model()
 
 risk_labels = {0: "Normal", 1: "Low Risk", 2: "Moderate Risk", 3: "High Risk"}
-risk_colors = {0: "success", 1: "info", 2: "warning", 3: "error"}
+risk_colors = {0: "#2ca02c", 1: "#1f77b4", 2: "#ff7f0e", 3: "#d62728"}  # green, blue, orange, red
 
 recommendations = {
     0: "You are at normal risk. Maintain a healthy lifestyle and routine checkups.",
@@ -218,26 +218,31 @@ def main():
     prediction_proba = model.predict_proba(input_df)[0][prediction]
 
     risk_label = risk_labels.get(prediction, "Unknown")
-    risk_color = risk_colors.get(prediction, "primary")
+    risk_color = risk_colors.get(prediction, "#000000")
+
     st.markdown(f"### Risk Classification: ")
-    st.markdown(f"<span style='color: {risk_color}; font-weight:bold;'>{risk_label}</span>", unsafe_allow_html=True)
+    st.markdown(f"<span style='color: {risk_color}; font-weight:bold; font-size:20px;'>{risk_label}</span>", unsafe_allow_html=True)
     st.write(f"Prediction probability for this class: {prediction_proba:.2f}")
 
-    st.markdown("### Recommendations:")
-    st.info(recommendations[prediction])
+    recommendation_text = recommendations[prediction]
+    # Recommendation colored by risk color
+    st.markdown(f"<div style='border-left: 6px solid {risk_color}; background:#f9f9f9; padding: 10px; border-radius:5px;'>"
+                f"<strong>Recommendation:</strong> {recommendation_text}</div>", unsafe_allow_html=True)
 
-    if prediction == 3:  # High risk - show call link
+    if prediction == 3:  # High risk - show call link button with styled HTML
         call_link_html = f'''
         <a href="tel:{care_provider_number}" style="
             display: inline-block;
-            padding: 0.5em 1em;
-            font-size: 1rem;
-            font-weight: 600;
+            margin-top: 10px;
+            padding: 0.6em 1.2em;
+            font-size: 1.1rem;
+            font-weight: 700;
             color: white;
-            background-color: #e63946;
-            border-radius: 5px;
+            background-color: #d62728;
+            border-radius: 6px;
             text-decoration: none;
             text-align: center;
+            box-shadow: 0 4px 6px rgba(214, 39, 40, 0.4);
             ">
             Call Care Provider ({care_provider_number})
         </a>
