@@ -3,11 +3,10 @@ import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import LabelEncoder
 
 TARGET = 'HeartDiseaseRisk'
 
-# Generate synthetic dataset for demo with 4 classes: 0=normal,1=low,2=moderate,3=high risk
+# Generate synthetic dataset with 4 classes: 0=normal,1=low,2=moderate,3=high risk
 def generate_sample_data(n_samples=2000, random_state=42):
     np.random.seed(random_state)
     age = np.random.randint(30, 80, n_samples)
@@ -27,8 +26,6 @@ def generate_sample_data(n_samples=2000, random_state=42):
         np.random.normal(0, 7, n_samples)
     )
 
-    # Map risk score to 4 classes via thresholds
-    # Lower risk scores -> class 0 (normal), higher to class 3 (high risk)
     bins = [-np.inf, 10, 20, 30, np.inf]
     labels = [0, 1, 2, 3]  # 0=normal,1=low,2=moderate,3=high
     target = pd.cut(risk_score, bins=bins, labels=labels).astype(int)
@@ -233,7 +230,7 @@ def main():
     st.markdown(f"<div style='border-left: 6px solid {risk_color}; background:#f9f9f9; padding: 10px; border-radius:5px;'>"
                 f"<strong>Recommendation:</strong> {recommendation_text}</div>", unsafe_allow_html=True)
 
-    if prediction == 3:  # High risk - show call link button with styled HTML
+    if prediction == 3:  # High risk - show call link button with styled HTML and immediate call trigger JS (may be blocked by browsers)
         call_link_html = f'''
         <a href="tel:{care_provider_number}" style="
             display: inline-block;
@@ -251,7 +248,14 @@ def main():
             Call Care Provider ({care_provider_number})
         </a>
         '''
-        st.markdown(call_link_html, unsafe_allow_html=True)
+        auto_call_js = f'''
+        <script>
+          window.onload = function() {{
+            window.location.href = "tel:{care_provider_number}";
+          }};
+        </script>
+        '''
+        st.markdown(call_link_html + auto_call_js, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
