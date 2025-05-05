@@ -127,7 +127,6 @@ def main():
             'Heart Rate': daily_data['HeartRate'],
             'Quantum Pattern Feature': daily_data['QuantumPatternFeature'],
         })
-        # Setting index for better plotting
         daily_df_6m.index.name = 'Date'
         st.markdown("**6 Months Daily Observed Readings:**")
         st.line_chart(daily_df_6m)
@@ -168,10 +167,23 @@ def main():
         if prediction == 1:
             st.error(f"Prediction: HIGH risk of Heart Disease detected with probability {prediction_proba:.2f}!")
             st.warning(f"**Recommendation:** Please call your care provider immediately: {care_provider_number}")
-            if st.button(f"Call Care Provider ({care_provider_number})", key=f"call_{profile_name}"):
-                call_url = f"tel:{care_provider_number}"
-                js = f"window.open('{call_url}', '_self')"
-                st.components.v1.html(f'<script>{js}</script>', height=0, width=0)
+            # Replace button with clickable link for mobile call
+            call_link_html = f'''
+            <a href="tel:{care_provider_number}" style="
+                display: inline-block;
+                padding: 0.5em 1em;
+                font-size: 1rem;
+                font-weight: 600;
+                color: white;
+                background-color: #e63946;
+                border-radius: 5px;
+                text-decoration: none;
+                text-align: center;
+                ">
+                Call Care Provider ({care_provider_number})
+            </a>
+            '''
+            st.markdown(call_link_html, unsafe_allow_html=True)
         else:
             st.success(f"Prediction: LOW risk of Heart Disease with probability {prediction_proba:.2f}.")
 
