@@ -151,7 +151,7 @@ recommendations = {
     3: "High risk detected! Immediate medical attention is recommended. Call your care provider."
 }
 
-care_provider_number = "+966596907647"
+care_provider_number = "+966597195595"
 
 def main():
     st.title("Heart Disease Risk Classification & Daily Readings")
