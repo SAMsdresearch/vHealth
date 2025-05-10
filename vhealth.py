@@ -220,7 +220,7 @@ def main():
         prediction_proba = 0.99  # High confidence artificially set
 
     risk_label = risk_labels.get(prediction, "Unknown")
-    risk_color = risk_colors.get(prediction, "#000000")
+    risk_color = risk_colors.get(prediction, "#f9f9f9")
 
     st.markdown(f"### Risk Classification: ")
     st.markdown(f"<span style='color: {risk_color}; font-weight:bold; font-size:20px;'>{risk_label}</span>", unsafe_allow_html=True)
