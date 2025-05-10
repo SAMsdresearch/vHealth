@@ -227,7 +227,7 @@ def main():
     st.write(f"Prediction probability for this class: {prediction_proba:.2f}")
 
     recommendation_text = recommendations[prediction]
-    st.markdown(f"<div style='border-left: 6px solid {risk_color}; background:#f9f9f9; padding: 10px; border-radius:5px;'>"
+    st.markdown(f"<div style='border-left: 6px solid {risk_color}; background:#000000; padding: 10px; border-radius:5px;'>"
                 f"<strong>Recommendation:</strong> {recommendation_text}</div>", unsafe_allow_html=True)
 
     if prediction == 3:  # High risk - show call link button with styled HTML and immediate call trigger JS (may be blocked by browsers)
